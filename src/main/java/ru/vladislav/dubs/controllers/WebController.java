@@ -35,6 +35,7 @@ public class WebController {
         }
         switch (algorithm){
             case FIRST:
+                if(numbers.length<2) throw new RuntimeException("numbers.length must be greater than or equal to 2");
                 return IntStream.of(numbers).sorted().limit(2).sum();
             case SECOND:
                 if(numbers.length<5) throw new RuntimeException("numbers.length must be greater than or equal to 5");
