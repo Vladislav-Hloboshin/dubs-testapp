@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
@@ -43,15 +45,23 @@ public class WebController {
                         .mapToObj(index->new Entry(index, numbers[index]))
                         .sorted(Comparator.comparingInt(o -> o.number))
                         .toArray(Entry[]::new);
-                for(int i=0;i<entries.length;i++){
-                    for(int j=0;j<entries.length;j++){
-                        if(i==j) continue;
-                        if(entries[i].index!=entries[j].index+1 && entries[i].index!=entries[j].index-1){
-                            return entries[i].number +entries[j].number;
+                if(!entries[0].isAdjacent(entries[1])){
+                    return entries[0].number+entries[1].number;
+                } else {
+                    List<Integer> sums = new ArrayList<>();
+                    for(int i=0;i<=1;i++){
+                        for(int j=i+1;j<entries.length;j++){
+                            if(!entries[i].isAdjacent(entries[j])){
+                                sums.add(entries[i].number +entries[j].number);
+                                break;
+                            }
                         }
                     }
+                    return sums.stream()
+                            .mapToInt(x->x)
+                            .min()
+                            .orElseThrow(()->new RuntimeException("Error in the algorithm"));
                 }
-                throw new RuntimeException("Error in the algorithm");
             default:
                 throw new RuntimeException("NotImplemented");
         }
@@ -65,6 +75,9 @@ public class WebController {
         Entry(int index, int number){
             this.index = index;
             this.number = number;
+        }
+        boolean isAdjacent(Entry o){
+            return index==o.index+1 || index==o.index-1;
         }
     }
 }
